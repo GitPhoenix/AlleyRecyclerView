@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">AlleyRecyclerView</string>
+
+    <string name="recycler_renew_down_going">下拉刷新</string>
+    <string name="recycler_renew_down_release">释放立即刷新</string>
+    <string name="recycler_renew_down_now">正在刷新...</string>
+    <string name="recycler_renew_down_end">刷新完成</string>
+
+    <string name="recycler_renew_up_now">正在加载更多...</string>
+    <string name="recycler_renew_up_never">已经到底了</string>
+</resources>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="48dp"
+              android:gravity="center_horizontal"
+              android:orientation="horizontal"
+              android:paddingBottom="16dp"
+              android:paddingTop="16dp">
+
+    <ImageView
+        android:id="@+id/iv_recycler_renew_up_anim"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/animation_loading_00"/>
+
+    <TextView
+        android:id="@+id/tv_recycler_renew_up_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:gravity="center_vertical"
+        android:text="@string/recycler_renew_up_now"
+        android:textColor="#999999"
+        android:textSize="14sp"/>
+
+</LinearLayout>

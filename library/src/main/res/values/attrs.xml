@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--RecyclerView swipeMenu 侧滑删除-->
+    <declare-styleable name="SwipeMenu">
+        <attr name="anim_duration" format="integer"/>
+    </declare-styleable>
+
+</resources>

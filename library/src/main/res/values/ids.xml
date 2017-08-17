@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <item name="recycler_item_swipe_content" type="id"/>
+    <item name="recycler_item_swipe_menu" type="id"/>
+
+    <item name="recycler_drag_support_toggle" type="id"/>
+    <item name="recycler_drag_support_target" type="id"/>
+</resources>

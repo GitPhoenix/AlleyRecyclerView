@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:gravity="bottom">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="96dp"
+        android:paddingTop="16dp">
+
+        <ImageView
+            android:id="@+id/iv_recycler_renew_down_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:src="@drawable/img_pull_down"
+            android:layout_toLeftOf="@+id/tv_recycler_renew_down_hint"/>
+
+        <ProgressBar
+            android:id="@+id/pbBar_recycler_renew_down_anim"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/tv_recycler_renew_down_hint"
+            android:visibility="invisible"/>
+
+        <TextView
+            android:id="@+id/tv_recycler_renew_down_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:paddingLeft="16dp"
+            android:text="@string/recycler_renew_down_going"
+            android:textSize="14sp"/>
+
+    </RelativeLayout>
+</LinearLayout>

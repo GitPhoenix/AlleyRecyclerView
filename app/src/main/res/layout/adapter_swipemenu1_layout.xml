@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.alley.rv.widget.AlleySwipeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <include
+        android:id="@+id/recycler_item_swipe_content"
+        layout="@layout/item_swipe_menu_content"/>
+
+    <include
+        android:id="@+id/recycler_item_swipe_menu"
+        layout="@layout/item_swipe_menu1"/>
+
+</com.alley.rv.widget.AlleySwipeLayout>
