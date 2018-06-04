@@ -10,7 +10,12 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.animation.Interpolator;
 
-
+/**
+ * 侧滑菜单
+ *
+ * @author Phoenix
+ * @date 2018/6/4 9:51
+ */
 public class AlleySwipeRecyclerView extends AlleyRecyclerView {
     public static final int TOUCH_STATE_NONE = 0;
     public static final int TOUCH_STATE_X = 1;
@@ -27,10 +32,9 @@ public class AlleySwipeRecyclerView extends AlleyRecyclerView {
     protected AlleySwipeLayout mTouchView;
     protected OnSwipeListener mOnSwipeListener;
 
-    protected Interpolator mCloseInterpolator;
-    protected Interpolator mOpenInterpolator;
+    protected Interpolator mCloseInterpolator, mOpenInterpolator;
 
-    protected RecyclerView.LayoutManager mLlm;
+    protected RecyclerView.LayoutManager layoutManager;
     protected ViewConfiguration mViewConfiguration;
     protected long startClickTime;
     protected float dx;
@@ -46,10 +50,10 @@ public class AlleySwipeRecyclerView extends AlleyRecyclerView {
 
     public AlleySwipeRecyclerView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init();
+        initAlleySwipeRecyclerView();
     }
 
-    protected void init() {
+    protected void initAlleySwipeRecyclerView() {
         mTouchState = TOUCH_STATE_NONE;
         mViewConfiguration = ViewConfiguration.get(getContext());
     }
@@ -68,6 +72,24 @@ public class AlleySwipeRecyclerView extends AlleyRecyclerView {
 
     public Interpolator getCloseInterpolator() {
         return mCloseInterpolator;
+    }
+
+    /**
+     * get current touched view
+     *
+     * @return touched view, maybe null
+     */
+    public AlleySwipeLayout getTouchView() {
+        return mTouchView;
+    }
+
+    /**
+     * set the swipe direction
+     *
+     * @param direction swipe direction (left or right)
+     */
+    public void setSwipeDirection(int direction) {
+        mDirection = direction;
     }
 
     @Override
@@ -193,7 +215,7 @@ public class AlleySwipeRecyclerView extends AlleyRecyclerView {
      * @param position the adapter position
      */
     public void smoothOpenMenu(int position) {
-        View view = mLlm.findViewByPosition(position);
+        View view = layoutManager.findViewByPosition(position);
         if (view instanceof AlleySwipeLayout) {
             mTouchPosition = position;
             // close pre opened swipe menu
@@ -216,17 +238,10 @@ public class AlleySwipeRecyclerView extends AlleyRecyclerView {
         }
     }
 
-    public void setOnSwipeListener(OnSwipeListener onSwipeListener) {
-        this.mOnSwipeListener = onSwipeListener;
-    }
-
-    /**
-     * get current touched view
-     *
-     * @return touched view, maybe null
-     */
-    public AlleySwipeLayout getTouchView() {
-        return mTouchView;
+    @Override
+    public void setLayoutManager(LayoutManager layout) {
+        super.setLayoutManager(layout);
+        layoutManager = layout;
     }
 
     public interface OnSwipeListener {
@@ -235,18 +250,7 @@ public class AlleySwipeRecyclerView extends AlleyRecyclerView {
         void onSwipeEnd(int position);
     }
 
-    /**
-     * set the swipe direction
-     *
-     * @param direction swipe direction (left or right)
-     */
-    public void setSwipeDirection(int direction) {
-        mDirection = direction;
-    }
-
-    @Override
-    public void setLayoutManager(LayoutManager layout) {
-        super.setLayoutManager(layout);
-        mLlm = layout;
+    public void setOnSwipeListener(OnSwipeListener onSwipeListener) {
+        this.mOnSwipeListener = onSwipeListener;
     }
 }

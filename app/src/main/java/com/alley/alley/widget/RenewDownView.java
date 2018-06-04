@@ -26,7 +26,7 @@ import com.alley.rv.widget.AlleyRenewDownView;
 public class RenewDownView extends AlleyRenewDownView {
     private static final int ROTATE_ANIM_DURATION = 180;
 
-    private LinearLayout rooView;
+    private LinearLayout rootView;
     private ImageView ivIndicator;
     private ProgressBar pbBar;
     private TextView tvHint;
@@ -49,9 +49,9 @@ public class RenewDownView extends AlleyRenewDownView {
      */
     private void initAlleyRefreshHeader() {
         // 初始情况，设置下拉刷新view高度为0
-        rooView = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.view_recycler_renew_down, null);
+        rootView = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.view_recycler_renew_down, null);
         setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-        addView(rooView, new LayoutParams(LayoutParams.MATCH_PARENT, 0));
+        addView(rootView, new LayoutParams(LayoutParams.MATCH_PARENT, 0));
 
         ivIndicator = (ImageView) findViewById(R.id.iv_recycler_renew_down_indicator);
         pbBar = (ProgressBar) findViewById(R.id.pbBar_recycler_renew_down_anim);
@@ -150,11 +150,6 @@ public class RenewDownView extends AlleyRenewDownView {
         renewState = currState;
     }
 
-    @Override
-    public int getRenewState() {
-        return renewState;
-    }
-
     /**
      * 最初状态
      */
@@ -194,11 +189,12 @@ public class RenewDownView extends AlleyRenewDownView {
         tvHint.setVisibility(INVISIBLE);
 
         smoothScrollTo(0);
-        new Handler().postDelayed(new Runnable() {
-            public void run() {
-                renewDownOriginal();
-            }
-        }, 5 * 100);
+        new Handler().postDelayed(() -> renewDownOriginal(), 6 * 100);
+    }
+
+    @Override
+    public int getRenewState() {
+        return renewState;
     }
 
     /**
@@ -210,9 +206,9 @@ public class RenewDownView extends AlleyRenewDownView {
         if (height < 0) {
             height = 0;
         }
-        LayoutParams lp = (LayoutParams) rooView.getLayoutParams();
+        LayoutParams lp = (LayoutParams) rootView.getLayoutParams();
         lp.height = height;
-        rooView.setLayoutParams(lp);
+        rootView.setLayoutParams(lp);
     }
 
     /**
@@ -221,7 +217,7 @@ public class RenewDownView extends AlleyRenewDownView {
      * @return
      */
     public int getVisibleHeight() {
-        LayoutParams lp = (LayoutParams) rooView.getLayoutParams();
+        LayoutParams lp = (LayoutParams) rootView.getLayoutParams();
         return lp.height;
     }
 

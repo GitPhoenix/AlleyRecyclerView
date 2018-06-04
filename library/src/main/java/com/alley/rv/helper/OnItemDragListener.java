@@ -2,7 +2,12 @@ package com.alley.rv.helper;
 
 import android.support.v7.widget.RecyclerView;
 
-
+/**
+ * item拖拽
+ *
+ * @author Phoenix
+ * @date 2018/6/4 9:52
+ */
 public interface OnItemDragListener {
     /**
      * 拖拽开始，禁止刷新

@@ -7,15 +7,20 @@ import com.alley.rv.R;
 import com.alley.rv.base.BaseRVAdapter;
 import com.alley.rv.base.BaseRVDragAdapter;
 
-
+/**
+ * item拖拽
+ *
+ * @author Phoenix
+ * @date 2018/6/4 9:53
+ */
 public class ItemDragCallback extends ItemTouchHelper.Callback {
-    BaseRVDragAdapter mAdapter;
+    private BaseRVDragAdapter mAdapter;
 
-    float mMoveThreshold = 0.1f;
-    float mSwipeThreshold = 0.7f;
+    private float mMoveThreshold = 0.1f;
+    private float mSwipeThreshold = 0.7f;
 
-    int mDragMoveFlags =  ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
-    int mSwipeMoveFlags = ItemTouchHelper.END;
+    private int mDragMoveFlags =  ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+    private int mSwipeMoveFlags = ItemTouchHelper.END;
 
     public ItemDragCallback(BaseRVDragAdapter adapter) {
         mAdapter = adapter;
@@ -66,11 +71,7 @@ public class ItemDragCallback extends ItemTouchHelper.Callback {
 
     @Override
     public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder source, RecyclerView.ViewHolder target) {
-        if (source.getItemViewType() != target.getItemViewType()) {
-            return false;
-        } else {
-            return true;
-        }
+        return source.getItemViewType() == target.getItemViewType();
     }
 
     @Override
@@ -140,11 +141,6 @@ public class ItemDragCallback extends ItemTouchHelper.Callback {
     }
 
     private boolean isViewCreateByAdapter(RecyclerView.ViewHolder viewHolder) {
-        int type = viewHolder.getItemViewType();
-        if (type == BaseRVAdapter.VIEW_TYPE.HEADER || type == BaseRVAdapter.VIEW_TYPE.FOOTER) {
-            return true;
-        }
-        return false;
-
+        return viewHolder.getItemViewType() == BaseRVAdapter.VIEW_TYPE.HEADER || viewHolder.getItemViewType() == BaseRVAdapter.VIEW_TYPE.FOOTER;
     }
 }

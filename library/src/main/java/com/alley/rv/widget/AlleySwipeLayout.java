@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
 import android.support.v4.view.GestureDetectorCompat;
-import android.support.v4.widget.ScrollerCompat;
 import android.util.AttributeSet;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.GestureDetector.SimpleOnGestureListener;
@@ -13,6 +12,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
+import android.widget.OverScroller;
 
 import com.alley.rv.R;
 
@@ -25,20 +25,17 @@ import com.alley.rv.R;
 public class AlleySwipeLayout extends FrameLayout {
     private static final int STATE_CLOSE = 0;
     private static final int STATE_OPEN = 1;
-    private static final boolean OVER_API_11 = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
+    private static final boolean OVER_API_11 = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1;
     private int mSwipeDirection;
-    private View mContentView;
-    private View mMenuView;
+    private View mContentView, mMenuView;
     private int mDownX;
     private int state = STATE_CLOSE;
     private GestureDetectorCompat mGestureDetector;
     private OnGestureListener mGestureListener;
     private boolean isFling;
-    private ScrollerCompat mOpenScroller;
-    private ScrollerCompat mCloseScroller;
+    private OverScroller mOpenScroller, mCloseScroller;
+    private Interpolator mCloseInterpolator, mOpenInterpolator;
     private int mBaseX;
-    private Interpolator mCloseInterpolator;
-    private Interpolator mOpenInterpolator;
     private ViewConfiguration mViewConfiguration;
     private boolean swipeEnable = true;
     private int animDuration;
@@ -76,10 +73,6 @@ public class AlleySwipeLayout extends FrameLayout {
         initAlleySwipeLayout();
     }
 
-    public void setSwipeDirection(int swipeDirection) {
-        mSwipeDirection = swipeDirection;
-    }
-
     public void initAlleySwipeLayout() {
         mGestureListener = new SimpleOnGestureListener() {
             @Override
@@ -98,21 +91,21 @@ public class AlleySwipeLayout extends FrameLayout {
         };
         mGestureDetector = new GestureDetectorCompat(getContext(), mGestureListener);
 
-        mCloseScroller = ScrollerCompat.create(getContext());
-        mOpenScroller = ScrollerCompat.create(getContext());
+        mCloseScroller = new OverScroller(getContext());
+        mOpenScroller = new OverScroller(getContext());
     }
 
     public void setCloseInterpolator(Interpolator closeInterpolator) {
         mCloseInterpolator = closeInterpolator;
         if (mCloseInterpolator != null) {
-            mCloseScroller = ScrollerCompat.create(getContext(), mCloseInterpolator);
+            mCloseScroller = new OverScroller(getContext(), mCloseInterpolator);
         }
     }
 
     public void setOpenInterpolator(Interpolator openInterpolator) {
         mOpenInterpolator = openInterpolator;
         if (mOpenInterpolator != null) {
-            mOpenScroller = ScrollerCompat.create(getContext(), mOpenInterpolator);
+            mOpenScroller = new OverScroller(getContext(), mOpenInterpolator);
         }
     }
 
@@ -182,11 +175,24 @@ public class AlleySwipeLayout extends FrameLayout {
         }
     }
 
-    public void smoothCloseMenu() {
-        closeOpenedMenu();
+    public void smoothOpenMenu() {
+        state = STATE_OPEN;
+        if (mSwipeDirection == AlleySwipeRecyclerView.DIRECTION_LEFT) {
+            mOpenScroller.startScroll(-mContentView.getLeft(), 0, mMenuView.getWidth(), 0, animDuration);
+        } else {
+            mOpenScroller.startScroll(mContentView.getLeft(), 0, mMenuView.getWidth(), 0, animDuration);
+        }
+        postInvalidate();
     }
 
-    public void closeOpenedMenu() {
+    public void openMenu() {
+        if (state == STATE_CLOSE) {
+            state = STATE_OPEN;
+            swipe(mMenuView.getWidth() * mSwipeDirection);
+        }
+    }
+
+    public void smoothCloseMenu() {
         state = STATE_CLOSE;
         if (mSwipeDirection == AlleySwipeRecyclerView.DIRECTION_LEFT) {
             mBaseX = -mContentView.getLeft();
@@ -194,16 +200,6 @@ public class AlleySwipeLayout extends FrameLayout {
         } else {
             mBaseX = mMenuView.getRight();
             mCloseScroller.startScroll(0, 0, mMenuView.getWidth(), 0, animDuration);
-        }
-        postInvalidate();
-    }
-
-    public void smoothOpenMenu() {
-        state = STATE_OPEN;
-        if (mSwipeDirection == AlleySwipeRecyclerView.DIRECTION_LEFT) {
-            mOpenScroller.startScroll(-mContentView.getLeft(), 0, mMenuView.getWidth(), 0, animDuration);
-        } else {
-            mOpenScroller.startScroll(mContentView.getLeft(), 0, mMenuView.getWidth(), 0, animDuration);
         }
         postInvalidate();
     }
@@ -218,19 +214,24 @@ public class AlleySwipeLayout extends FrameLayout {
         }
     }
 
-    public void openMenu() {
-        if (state == STATE_CLOSE) {
-            state = STATE_OPEN;
-            swipe(mMenuView.getWidth() * mSwipeDirection);
-        }
-    }
-
     public View getMenuView() {
         return mMenuView;
     }
 
     public View getContentView() {
         return mContentView;
+    }
+
+    public void setSwipeEnable(boolean swipeEnable) {
+        this.swipeEnable = swipeEnable;
+    }
+
+    public boolean isSwipeEnable() {
+        return swipeEnable;
+    }
+
+    public void setSwipeDirection(int swipeDirection) {
+        mSwipeDirection = swipeDirection;
     }
 
     @Override
@@ -248,13 +249,5 @@ public class AlleySwipeLayout extends FrameLayout {
         } else {
             mMenuView.layout(-(OVER_API_11 ? mMenuView.getMeasuredWidthAndState() : mMenuView.getMeasuredWidth()), tGap, 0, tGap + mMenuView.getMeasuredHeightAndState());
         }
-    }
-
-    public void setSwipeEnable(boolean swipeEnable) {
-        this.swipeEnable = swipeEnable;
-    }
-
-    public boolean isSwipeEnable() {
-        return swipeEnable;
     }
 }

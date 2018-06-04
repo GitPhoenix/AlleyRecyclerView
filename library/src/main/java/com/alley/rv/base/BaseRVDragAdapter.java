@@ -14,7 +14,12 @@ import com.alley.rv.helper.OnItemDragListener;
 import java.util.Collections;
 import java.util.List;
 
-
+/**
+ * item拖拽
+ *
+ * @author Phoenix
+ * @date 2018/6/4 10:01
+ */
 public abstract class BaseRVDragAdapter<T> extends BaseRVAdapter<T> {
     private static final int NO_TOGGLE_VIEW = 0;
     private int mToggleViewId = NO_TOGGLE_VIEW;

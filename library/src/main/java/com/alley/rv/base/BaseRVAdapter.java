@@ -394,7 +394,6 @@ public abstract class BaseRVAdapter<T> extends RecyclerView.Adapter<BaseViewHold
      * This is parallax header view wrapper class ,it aim to clip layout height on Y.
      */
     static class CustomRelativeWrapper extends RelativeLayout {
-
         private int mOffset;
         private boolean mShouldClip;
 

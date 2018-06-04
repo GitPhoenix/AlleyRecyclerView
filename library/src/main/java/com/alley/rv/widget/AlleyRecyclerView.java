@@ -22,7 +22,6 @@ import com.alley.rv.helper.AppBarStateChangeListener;
  * @date 2017/4/13 14:37
  */
 public class AlleyRecyclerView extends RecyclerView {
-    private static final String TAG = AlleyRecyclerView.class.getSimpleName();
     private static final float DRAG_RATE = 3;
     //下面的ItemViewType是保留值(ReservedItemViewType), 如果用户的adapter与它们重复将会强制抛出异常。
     // 不过为了简化, 我们检测到重复时对用户的提示是ItemViewType必须小于10000
@@ -150,7 +149,7 @@ public class AlleyRecyclerView extends RecyclerView {
         }
 
         isRefreshing = false;
-        renewDownView.setRenewState(renewDownView.RENEW_DOWN_END);
+        renewDownView.setRenewState(AlleyRenewDownView.RENEW_DOWN_END);
     }
 
     /**
@@ -166,7 +165,7 @@ public class AlleyRecyclerView extends RecyclerView {
         if (renewUpView.getMeasuredHeight() > 0) {
             smoothScrollBy(0, -(renewUpView.getMeasuredHeight() + 8));
         }
-        renewUpView.setRenewState(renewUpView.RENEW_UP_END);
+        renewUpView.setRenewState(AlleyRenewUpView.RENEW_UP_END);
     }
 
     /**
@@ -178,7 +177,7 @@ public class AlleyRecyclerView extends RecyclerView {
         }
 
         isNever = false;
-        renewUpView.setRenewState(renewUpView.RENEW_UP_NEVER);
+        renewUpView.setRenewState(AlleyRenewUpView.RENEW_UP_NEVER);
     }
 
     @Override
@@ -216,7 +215,7 @@ public class AlleyRecyclerView extends RecyclerView {
 
         if (layoutManager.getChildCount() > 0 && lastVisibleItemPosition >= layoutManager.getItemCount() - 1 && layoutManager.getItemCount() > layoutManager.getChildCount()) {
             isLoading = true;
-            renewUpView.setRenewState(renewUpView.RENEW_UP_NOW);
+            renewUpView.setRenewState(AlleyRenewUpView.RENEW_UP_NOW);
             onDataRenewListener.onRenewUp();
         }
     }
@@ -241,7 +240,7 @@ public class AlleyRecyclerView extends RecyclerView {
                 mLastY = ev.getRawY();
                 if (isOnTop() && appbarState == AppBarStateChangeListener.State.EXPANDED) {
                     renewDownView.onFling(deltaY / DRAG_RATE);
-                    if (renewDownView.getHeight() > 0 && renewDownView.getRenewState() < renewDownView.RENEW_DOWN_NOW) {
+                    if (renewDownView.getHeight() > 0 && renewDownView.getRenewState() < AlleyRenewDownView.RENEW_DOWN_NOW) {
                         return false;
                     }
                 }
@@ -278,7 +277,7 @@ public class AlleyRecyclerView extends RecyclerView {
     }
 
     private boolean isOnTop() {
-        return (renewDownView.getParent() != null);
+        return renewDownView.getParent() != null;
     }
 
     /**

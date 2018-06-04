@@ -17,11 +17,13 @@ import android.view.View;
  * @date 2016-9-8 17:36
  */
 public class GridDividerItemDecoration extends RecyclerView.ItemDecoration {
-    private static final int[] ATTRS = new int[]{android.R.attr.listDivider};
+    private static final int[] DIVIDER_LIST = new int[]{
+            android.R.attr.listDivider
+    };
     private Drawable mDivider;
 
     public GridDividerItemDecoration(Context context) {
-        final TypedArray a = context.obtainStyledAttributes(ATTRS);
+        final TypedArray a = context.obtainStyledAttributes(DIVIDER_LIST);
         mDivider = a.getDrawable(0);
         a.recycle();
     }
@@ -120,7 +122,9 @@ public class GridDividerItemDecoration extends RecyclerView.ItemDecoration {
             if (orientation == StaggeredGridLayoutManager.VERTICAL) {
                 childCount = childCount - childCount % spanCount;
                 // 如果是最后一行，则不需要绘制底部
-                if (pos >= childCount) return true;
+                if (pos >= childCount) {
+                    return true;
+                }
             } else {// StaggeredGridLayoutManager 且横向滚动
                 // 如果是最后一行，则不需要绘制底部
                 if ((pos + 1) % spanCount == 0) {
