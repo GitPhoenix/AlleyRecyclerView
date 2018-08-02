@@ -1,7 +1,6 @@
 package com.alley.alley.adapter;
 
 import android.content.Context;
-import android.view.View;
 
 import com.alley.alley.R;
 import com.alley.rv.base.BaseRVAdapter;
@@ -13,14 +12,25 @@ import java.util.List;
 
 public class SwipeMenuAdapter extends BaseRVAdapter<String> {
 
-    public SwipeMenuAdapter(Context context, List<String> data) {
-        super(context, data);
+
+    public SwipeMenuAdapter(Context context, List<String> listBody) {
+        super(context, listBody);
+    }
+
+    @Override
+    protected int getItemLayoutID(int position) {
+        if (position % 3 == 0) {
+            return R.layout.adapter_swipemenu1_layout;
+        } else {
+            return R.layout.adapter_swipemenu_layout;
+        }
     }
 
     @Override
     protected void convert(BaseViewHolder holder, String item, int position) {
         final AlleySwipeLayout superSwipeMenuLayout = (AlleySwipeLayout) holder.itemView;
-        superSwipeMenuLayout.setSwipeEnable(true);//设置是否可以侧滑
+        //设置是否可以侧滑
+        superSwipeMenuLayout.setSwipeEnable(true);
         if (position % 3 == 0) {
             holder.setText(R.id.name_tv, item);
             holder.setOnClickListener(R.id.btFavorite, new OnItemChildClickListener());
@@ -34,25 +44,13 @@ public class SwipeMenuAdapter extends BaseRVAdapter<String> {
             /**
              * 设置可以非滑动触发的开启菜单
              */
-            holder.getView(R.id.image_iv).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (superSwipeMenuLayout.isOpen()) {
-                        superSwipeMenuLayout.closeMenu();
-                    } else {
-                        superSwipeMenuLayout.openMenu();
-                    }
+            holder.getView(R.id.image_iv).setOnClickListener(view -> {
+                if (superSwipeMenuLayout.isOpen()) {
+                    superSwipeMenuLayout.closeMenu();
+                } else {
+                    superSwipeMenuLayout.openMenu();
                 }
             });
-        }
-    }
-
-    @Override
-    protected int getItemLayoutID(int position) {
-        if (position % 3 == 0) {
-            return R.layout.adapter_swipemenu1_layout;
-        } else {
-            return R.layout.adapter_swipemenu_layout;
         }
     }
 }

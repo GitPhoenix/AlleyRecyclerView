@@ -12,7 +12,7 @@ import com.alley.alley.adapter.SwipeMenuAdapter;
 import com.alley.alley.widget.RenewDownView;
 import com.alley.alley.widget.RenewUpView;
 import com.alley.rv.base.BaseRVAdapter;
-import com.alley.rv.decoration.LinearDividerItemDecoration;
+import com.alley.alley.decoration.LinearDividerItemDecoration;
 import com.alley.rv.widget.AlleyRecyclerView;
 import com.alley.rv.widget.AlleySwipeRecyclerView;
 
@@ -47,7 +47,7 @@ public class SwipeMenuActivity extends AppCompatActivity implements AlleyRecycle
             }
         });
 
-        adapter.setOnItemChildClickListener(new BaseRVAdapter.OnRecyclerViewItemChildClickListener() {
+        adapter.setOnItemChildClickListener(new BaseRVAdapter.OnRecyclerItemChildClickListener() {
             @Override
             public void onItemChildClick(BaseRVAdapter adapter, View view, int position) {
                 switch (view.getId()){
@@ -89,19 +89,11 @@ public class SwipeMenuActivity extends AppCompatActivity implements AlleyRecycle
 
     @Override
     public void onRenewDown() {
-        new Handler().postDelayed(new Runnable() {
-            public void run() {
-                recyclerView.endRenewDown();
-            }
-        }, 2 * 1000);
+        new Handler().postDelayed(() -> recyclerView.endRenewDown(), 2 * 1000);
     }
 
     @Override
     public void onRenewUp() {
-        new Handler().postDelayed(new Runnable() {
-            public void run() {
-                recyclerView.endRenewUp();
-            }
-        }, 1 * 1000);
+        new Handler().postDelayed(() -> recyclerView.endRenewUp(), 1 * 1000);
     }
 }

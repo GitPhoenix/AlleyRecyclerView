@@ -98,22 +98,14 @@ public class DragActivity extends Activity implements AlleyRecyclerView.OnDataRe
 
     @Override
     public void onRenewDown() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mRecyclerView.endRenewDown();
-            }
-        }, 2000);
+        new Handler().postDelayed(() -> mRecyclerView.endRenewDown(), 2000);
     }
 
     @Override
     public void onRenewUp() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mRecyclerView.endRenewUp();
-                mRecyclerView.setRenewNever();
-            }
+        new Handler().postDelayed(() -> {
+            mRecyclerView.endRenewUp();
+            mRecyclerView.setRenewNever();
         }, 2000);
     }
 

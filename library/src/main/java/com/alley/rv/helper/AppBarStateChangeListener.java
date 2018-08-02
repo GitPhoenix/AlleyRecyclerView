@@ -2,10 +2,18 @@ package com.alley.rv.helper;
 
 import android.support.design.widget.AppBarLayout;
 
-
+/**
+ * 状态改变监听
+ *
+ * @author Phoenix
+ * @date 2018/7/21 11:49
+ */
 public abstract class AppBarStateChangeListener implements AppBarLayout.OnOffsetChangedListener {
 
     public enum State {
+        /**
+         * 状态
+         */
         EXPANDED, COLLAPSED, IDLE
     }
 
@@ -31,6 +39,12 @@ public abstract class AppBarStateChangeListener implements AppBarLayout.OnOffset
         }
     }
 
+    /**
+     * 状态改变监听
+     *
+     * @param appBarLayout
+     * @param state
+     */
     public abstract void onStateChanged(AppBarLayout appBarLayout, State state);
 }
 

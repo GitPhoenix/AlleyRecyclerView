@@ -141,6 +141,6 @@ public class ItemDragCallback extends ItemTouchHelper.Callback {
     }
 
     private boolean isViewCreateByAdapter(RecyclerView.ViewHolder viewHolder) {
-        return viewHolder.getItemViewType() == BaseRVAdapter.VIEW_TYPE.HEADER || viewHolder.getItemViewType() == BaseRVAdapter.VIEW_TYPE.FOOTER;
+        return viewHolder.getItemViewType() == BaseRVAdapter.ViewType.HEADER || viewHolder.getItemViewType() == BaseRVAdapter.ViewType.FOOTER;
     }
 }

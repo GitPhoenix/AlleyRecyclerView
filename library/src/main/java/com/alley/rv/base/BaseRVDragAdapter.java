@@ -1,5 +1,6 @@
 package com.alley.rv.base;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.view.MotionEventCompat;
@@ -37,7 +38,7 @@ public abstract class BaseRVDragAdapter<T> extends BaseRVAdapter<T> {
     }
 
     @Override
-    public void onBindViewHolder(BaseViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull BaseViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         int viewType = holder.getItemViewType();
         if (mItemTouchHelper != null && itemDragEnabled ) {
@@ -89,6 +90,7 @@ public abstract class BaseRVDragAdapter<T> extends BaseRVAdapter<T> {
             };
         } else {
             mOnToggleViewTouchListener = new View.OnTouchListener() {
+                @SuppressLint("ClickableViewAccessibility")
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
                     if (MotionEventCompat.getActionMasked(event) == MotionEvent.ACTION_DOWN
@@ -180,11 +182,11 @@ public abstract class BaseRVDragAdapter<T> extends BaseRVAdapter<T> {
 
         if (from < to) {
             for (int i = from; i < to; i++) {
-                Collections.swap(mData, i, i + 1);
+                Collections.swap(listBody, i, i + 1);
             }
         } else {
             for (int i = from; i > to; i--) {
-                Collections.swap(mData, i, i - 1);
+                Collections.swap(listBody, i, i - 1);
             }
         }
         notifyItemMoved(source.getAdapterPosition(), target.getAdapterPosition());

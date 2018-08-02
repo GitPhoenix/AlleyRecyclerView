@@ -14,7 +14,7 @@ import com.alley.alley.adapter.AnimationAdapter;
 import com.alley.alley.widget.RenewDownView;
 import com.alley.alley.widget.RenewUpView;
 import com.alley.rv.base.BaseRVAdapter;
-import com.alley.rv.decoration.GridDividerItemDecoration;
+import com.alley.alley.decoration.GridDividerItemDecoration;
 import com.alley.rv.widget.AlleyRecyclerView;
 
 import java.util.ArrayList;
@@ -81,19 +81,11 @@ public class MainActivity extends AppCompatActivity implements AlleyRecyclerView
 
     @Override
     public void onRenewDown() {
-        new Handler().postDelayed(new Runnable() {
-            public void run() {
-                recyclerView.endRenewDown();
-            }
-        }, 2 * 1000);
+        new Handler().postDelayed(() -> recyclerView.endRenewDown(), 2 * 1000);
     }
 
     @Override
     public void onRenewUp() {
-        new Handler().postDelayed(new Runnable() {
-            public void run() {
-                recyclerView.endRenewUp();
-            }
-        }, 1 * 1000);
+        new Handler().postDelayed(() -> recyclerView.endRenewUp(), 1000);
     }
 }

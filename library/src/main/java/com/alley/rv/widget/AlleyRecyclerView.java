@@ -1,6 +1,8 @@
 package com.alley.rv.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.widget.GridLayoutManager;
@@ -23,26 +25,42 @@ import com.alley.rv.helper.AppBarStateChangeListener;
  */
 public class AlleyRecyclerView extends RecyclerView {
     private static final float DRAG_RATE = 3;
-    //下面的ItemViewType是保留值(ReservedItemViewType), 如果用户的adapter与它们重复将会强制抛出异常。
-    // 不过为了简化, 我们检测到重复时对用户的提示是ItemViewType必须小于10000
-    //设置一个很大的数字, 尽可能避免和用户的adapter冲突
+    /**
+     * 下面的ItemViewType是保留值(ReservedItemViewType), 如果用户的adapter与它们重复将会强制抛出异常。
+     * 不过为了简化, 我们检测到重复时对用户的提示是ItemViewType必须小于10000
+     * 设置一个很大的数字, 尽可能避免和用户的adapter冲突
+     */
     private static final int TYPE_REFRESH_HEADER = 100000;
     private static final int TYPE_LOADING_FOOTER = 100001;
 
     private float mLastY = -1;
-    //下拉刷新状态标识量
+    /**
+     * 下拉刷新状态标识量
+     */
     private boolean isRefreshing = false;
-    //上拉加载状态标示量
+    /**
+     * 上拉加载状态标示量
+     */
     private boolean isLoading = false;
-    //没有数据标识量，再也不会进行刷新了
+    /**
+     * 没有数据标识量，再也不会进行刷新了
+     */
     private boolean isNever = false;
-    //下拉刷新
+    /**
+     * 下拉刷新
+     */
     private AlleyRenewDownView renewDownView;
-    //上拉加载视图
+    /**
+     * 上拉加载视图
+     */
     private AlleyRenewUpView renewUpView;
-    //是否允许【下拉刷新】标识量
+    /**
+     * 是否允许【下拉刷新】标识量
+     */
     private boolean renewDownEnable = false;
-    //是否允许【上拉加载】标识量
+    /**
+     * 是否允许【上拉加载】标识量
+     */
     private boolean renewUpEnable = false;
 
     private WrapAdapter mWrapAdapter;
@@ -121,10 +139,9 @@ public class AlleyRecyclerView extends RecyclerView {
      * @param renewDownView
      */
     public void setRenewDownView(AlleyRenewDownView renewDownView) {
-        if (!(renewDownView instanceof AlleyRenewDownView)) {
-            throw new IllegalArgumentException("下拉刷新视图必须继承AlleyRenewDownView");
+        if (renewDownView != null) {
+            this.renewDownView = renewDownView;
         }
-        this.renewDownView = renewDownView;
     }
 
     /**
@@ -133,51 +150,44 @@ public class AlleyRecyclerView extends RecyclerView {
      * @param renewUpView
      */
     public void setRenewUpView(AlleyRenewUpView renewUpView) {
-        if (!(renewUpView instanceof AlleyRenewUpView)) {
-            throw new IllegalArgumentException("上拉加载视图必须继承AlleyRenewUpView");
+        if (renewUpView != null) {
+            this.renewUpView = renewUpView;
+            renewUpView.setVisibility(GONE);
         }
-        this.renewUpView = renewUpView;
-        renewUpView.setVisibility(GONE);
     }
 
     /**
      * 设置下拉刷新结束
      */
     public void endRenewDown() {
-        if (renewDownView == null) {
-            return;
+        if (renewDownView != null) {
+            isRefreshing = false;
+            renewDownView.setRenewState(AlleyRenewDownView.RENEW_DOWN_END);
         }
-
-        isRefreshing = false;
-        renewDownView.setRenewState(AlleyRenewDownView.RENEW_DOWN_END);
     }
 
     /**
      * 设置上拉加载结束
      */
     public void endRenewUp() {
-        if (renewUpView == null) {
-            return;
+        if (renewUpView != null) {
+            isLoading = false;
+            //加载完成后，往回滑动8px,防止再次触发上拉加载
+            if (renewUpView.getMeasuredHeight() > 0) {
+                smoothScrollBy(0, -(renewUpView.getMeasuredHeight() + 8));
+            }
+            renewUpView.setRenewState(AlleyRenewUpView.RENEW_UP_END);
         }
-
-        isLoading = false;
-        //加载完成后，往回滑动8px,防止再次触发上拉加载
-        if (renewUpView.getMeasuredHeight() > 0) {
-            smoothScrollBy(0, -(renewUpView.getMeasuredHeight() + 8));
-        }
-        renewUpView.setRenewState(AlleyRenewUpView.RENEW_UP_END);
     }
 
     /**
      * 当上拉加载没有更多数据时，设置上拉加载动画不显示
      */
     public void setRenewNever() {
-        if (renewUpView == null) {
-            return;
+        if (renewUpView != null) {
+            isNever = false;
+            renewUpView.setRenewState(AlleyRenewUpView.RENEW_UP_NEVER);
         }
-
-        isNever = false;
-        renewUpView.setRenewState(AlleyRenewUpView.RENEW_UP_NEVER);
     }
 
     @Override
@@ -220,6 +230,7 @@ public class AlleyRecyclerView extends RecyclerView {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         if (!renewDownEnable) {
@@ -245,9 +256,9 @@ public class AlleyRecyclerView extends RecyclerView {
                     }
                 }
                 break;
-
+            // reset
             default:
-                mLastY = -1; // reset
+                mLastY = -1;
                 if (isOnTop() && appbarState == AppBarStateChangeListener.State.EXPANDED) {
                     if (renewDownView.onUp() && onDataRenewListener != null) {
                         isRefreshing = true;
@@ -327,18 +338,8 @@ public class AlleyRecyclerView extends RecyclerView {
     public class WrapAdapter extends Adapter<ViewHolder> {
         private Adapter adapter;
 
-        public WrapAdapter(Adapter adapter) {
+        WrapAdapter(Adapter adapter) {
             this.adapter = adapter;
-        }
-
-        /**
-         * 判断是否是第一个Item
-         *
-         * @param position
-         * @return
-         */
-        public boolean isHeader(int position) {
-            return position >= 1 && position < 1;
         }
 
         /**
@@ -347,20 +348,17 @@ public class AlleyRecyclerView extends RecyclerView {
          * @param position
          * @return
          */
-        public boolean isFooter(int position) {
-            if (renewUpEnable) {
-                return position == getItemCount() - 1;
-            } else {
-                return false;
-            }
+        private boolean isFooter(int position) {
+            return renewUpEnable && position == getItemCount() - 1;
         }
 
-        public boolean isRefreshHeader(int position) {
+        private boolean isRefreshHeader(int position) {
             return position == 0;
         }
 
+        @NonNull
         @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             if (viewType == TYPE_REFRESH_HEADER) {
                 return new SimpleViewHolder(renewDownView);
             } else if (viewType == TYPE_LOADING_FOOTER) {
@@ -370,19 +368,17 @@ public class AlleyRecyclerView extends RecyclerView {
         }
 
         @Override
-        public void onBindViewHolder(final ViewHolder holder, int position) {
-            if (isHeader(position) || isRefreshHeader(position)) {
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            if (isRefreshHeader(position)) {
                 return;
             }
             int adjPosition = position - 1;
-            int adapterCount;
             if (adapter == null) {
                 return;
             }
-            adapterCount = adapter.getItemCount();
+            int adapterCount = adapter.getItemCount();
             if (adjPosition < adapterCount) {
                 adapter.onBindViewHolder(holder, adjPosition);
-                return;
             }
         }
 
@@ -416,11 +412,10 @@ public class AlleyRecyclerView extends RecyclerView {
                 return TYPE_LOADING_FOOTER;
             }
 
-            int adapterCount;
             if (adapter == null) {
                 return 0;
             }
-            adapterCount = adapter.getItemCount();
+            int adapterCount = adapter.getItemCount();
             if (adjPosition < adapterCount) {
                 return adapter.getItemViewType(adjPosition);
             }
@@ -440,7 +435,7 @@ public class AlleyRecyclerView extends RecyclerView {
         }
 
         @Override
-        public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
             super.onAttachedToRecyclerView(recyclerView);
             LayoutManager manager = recyclerView.getLayoutManager();
             if (manager instanceof GridLayoutManager) {
@@ -448,7 +443,7 @@ public class AlleyRecyclerView extends RecyclerView {
                 gridManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
                     @Override
                     public int getSpanSize(int position) {
-                        return (isHeader(position) || isFooter(position) || isRefreshHeader(position)) ? gridManager.getSpanCount() : 1;
+                        return (isFooter(position) || isRefreshHeader(position)) ? gridManager.getSpanCount() : 1;
                     }
                 });
             }
@@ -456,15 +451,15 @@ public class AlleyRecyclerView extends RecyclerView {
         }
 
         @Override
-        public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
             adapter.onDetachedFromRecyclerView(recyclerView);
         }
 
         @Override
-        public void onViewAttachedToWindow(ViewHolder holder) {
+        public void onViewAttachedToWindow(@NonNull ViewHolder holder) {
             super.onViewAttachedToWindow(holder);
             ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
-            if (lp != null && lp instanceof StaggeredGridLayoutManager.LayoutParams && (isHeader(holder.getLayoutPosition()) || isRefreshHeader(holder.getLayoutPosition()) || isFooter(holder.getLayoutPosition()))) {
+            if (lp != null && lp instanceof StaggeredGridLayoutManager.LayoutParams && (isRefreshHeader(holder.getLayoutPosition()) || isFooter(holder.getLayoutPosition()))) {
                 StaggeredGridLayoutManager.LayoutParams p = (StaggeredGridLayoutManager.LayoutParams) lp;
                 p.setFullSpan(true);
             }
@@ -472,33 +467,33 @@ public class AlleyRecyclerView extends RecyclerView {
         }
 
         @Override
-        public void onViewDetachedFromWindow(ViewHolder holder) {
+        public void onViewDetachedFromWindow(@NonNull ViewHolder holder) {
             adapter.onViewDetachedFromWindow(holder);
         }
 
         @Override
-        public void onViewRecycled(ViewHolder holder) {
+        public void onViewRecycled(@NonNull ViewHolder holder) {
             adapter.onViewRecycled(holder);
         }
 
         @Override
-        public boolean onFailedToRecycleView(ViewHolder holder) {
+        public boolean onFailedToRecycleView(@NonNull ViewHolder holder) {
             return adapter.onFailedToRecycleView(holder);
         }
 
         @Override
-        public void unregisterAdapterDataObserver(AdapterDataObserver observer) {
+        public void unregisterAdapterDataObserver(@NonNull AdapterDataObserver observer) {
             adapter.unregisterAdapterDataObserver(observer);
         }
 
         @Override
-        public void registerAdapterDataObserver(AdapterDataObserver observer) {
+        public void registerAdapterDataObserver(@NonNull AdapterDataObserver observer) {
             adapter.registerAdapterDataObserver(observer);
         }
 
         private class SimpleViewHolder extends RecyclerView.ViewHolder {
 
-            public SimpleViewHolder(View itemView) {
+            SimpleViewHolder(View itemView) {
                 super(itemView);
             }
         }

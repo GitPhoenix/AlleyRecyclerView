@@ -3,6 +3,7 @@ package com.alley.rv.base;
 import android.content.Context;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
@@ -26,11 +27,11 @@ public class BaseViewHolder extends RecyclerView.ViewHolder {
         mContext = context;
     }
 
-    public <TView extends View> TView getView(int id) {
-        View view = mViews.get(id);
+    public <TView extends View> TView getView(int viewId) {
+        View view = mViews.get(viewId);
         if (view == null) {
-            view = itemView.findViewById(id);
-            mViews.put(id, view);
+            view = itemView.findViewById(viewId);
+            mViews.put(viewId, view);
         }
         return (TView) view;
     }
@@ -41,21 +42,33 @@ public class BaseViewHolder extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public BaseViewHolder setImageURI(int viewId, Uri uri) {
-        ImageView view = getView(viewId);
-        view.setImageURI(uri);
-        return this;
-    }
-
     public BaseViewHolder setTextColor(int viewId, int textColor) {
         TextView view = getView(viewId);
         view.setTextColor(textColor);
         return this;
     }
 
-    public BaseViewHolder setImageResource(int viewId, int imageResId) {
+    public BaseViewHolder setTextSize(int viewId, float size) {
+        TextView view = getView(viewId);
+        view.setTextSize(size);
+        return this;
+    }
+
+    public BaseViewHolder setImageURI(int viewId, Uri uri) {
         ImageView view = getView(viewId);
-        view.setImageResource(imageResId);
+        view.setImageURI(uri);
+        return this;
+    }
+
+    public BaseViewHolder setImageResource(int viewId, int resId) {
+        ImageView view = getView(viewId);
+        view.setImageResource(resId);
+        return this;
+    }
+
+    public BaseViewHolder setImageDrawable(int viewId, Drawable drawable) {
+        ImageView view = getView(viewId);
+        view.setImageDrawable(drawable);
         return this;
     }
 

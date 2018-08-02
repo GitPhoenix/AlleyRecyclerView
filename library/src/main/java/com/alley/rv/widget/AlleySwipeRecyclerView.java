@@ -1,8 +1,6 @@
 package com.alley.rv.widget;
 
 import android.content.Context;
-import android.support.v4.view.MotionEventCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -23,7 +21,10 @@ public class AlleySwipeRecyclerView extends AlleyRecyclerView {
 
     public static final int DIRECTION_LEFT = 1;
     public static final int DIRECTION_RIGHT = -1;
-    protected int mDirection = DIRECTION_LEFT; // swipe from right to left by default
+    /**
+     * swipe from right to left by default
+     */
+    protected int mDirection = DIRECTION_LEFT;
 
     protected float mDownX;
     protected float mDownY;
@@ -99,11 +100,14 @@ public class AlleySwipeRecyclerView extends AlleyRecyclerView {
         }
 
         int action = ev.getAction();
-        switch (action & MotionEventCompat.ACTION_MASK) {
+        switch (action & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                dx = 0.0f; // reset
-                dy = 0.0f; // reset
-                startClickTime = System.currentTimeMillis(); // reset
+                // reset
+                dx = 0.0f;
+                // reset
+                dy = 0.0f;
+                // reset
+                startClickTime = System.currentTimeMillis();
                 int oldPos = mTouchPosition;
                 mDownX = ev.getX();
                 mDownY = ev.getY();
@@ -187,10 +191,11 @@ public class AlleySwipeRecyclerView extends AlleyRecyclerView {
                         int x = (int) eX - smView.getLeft();
                         int y = (int) eY - smView.getTop();
                         View menuView = smView.getMenuView();
-                        final float translationX = ViewCompat.getTranslationX(menuView);
-                        final float translationY = ViewCompat.getTranslationY(menuView);
+                        final float translationX = menuView.getTranslationX();
+                        final float translationY = menuView.getTranslationY();
                         // intercept the up event when touched on the contentView of the opened SwipeMenuLayout
-                        if (!(x >= menuView.getLeft() + translationX && x <= menuView.getRight() + translationX && y >= menuView.getTop() + translationY && y <= menuView.getBottom() + translationY) && isCloseOnUpEvent) {
+                        boolean swipe = x >= menuView.getLeft() + translationX && x <= menuView.getRight() + translationX && y >= menuView.getTop() + translationY && y <= menuView.getBottom() + translationY;
+                        if (!swipe && isCloseOnUpEvent) {
                             return true;
                         }
                     }
@@ -203,6 +208,9 @@ public class AlleySwipeRecyclerView extends AlleyRecyclerView {
                     ev.setAction(MotionEvent.ACTION_UP);
                     mTouchView.onSwipe(ev);
                 }
+                break;
+
+            default:
                 break;
         }
 

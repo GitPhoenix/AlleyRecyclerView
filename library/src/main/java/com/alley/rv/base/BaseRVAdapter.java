@@ -1,21 +1,18 @@
 package com.alley.rv.base;
 
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Rect;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import com.alley.rv.helper.AlleyAnimationListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -27,7 +24,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
  * @date 2017/4/13 16:54
  */
 public abstract class BaseRVAdapter<T> extends RecyclerView.Adapter<BaseViewHolder> {
-    public static class VIEW_TYPE {
+    public static class ViewType {
         public static final int HEADER = 0x0010;
         public static final int FOOTER = 0x0011;
     }
@@ -35,8 +32,8 @@ public abstract class BaseRVAdapter<T> extends RecyclerView.Adapter<BaseViewHold
     /**
      * Base config
      */
-    public List<T> mData;
-    private Context mContext;
+    protected List<T> listBody;
+    protected Context mContext;
     private LayoutInflater mInflater;
 
     /**
@@ -44,13 +41,13 @@ public abstract class BaseRVAdapter<T> extends RecyclerView.Adapter<BaseViewHold
      */
     private OnItemClickListener mOnItemClickListener;
     private OnItemLongClickListener mOnItemLongClickListener;
-    private OnRecyclerViewItemChildClickListener mChildClickListener;
-    private OnRecyclerViewItemChildLongClickListener mChildLongClickListener;
+    private OnRecyclerItemChildClickListener mChildClickListener;
+    private OnRecyclerItemChildLongClickListener mChildLongClickListener;
 
     /**
      * View type
      */
-    private Map<Integer, Integer> layoutIdMap, viewTypeMap;
+    private SparseIntArray layoutIdMap, viewTypeMap;
     private int mCurrentViewTypeValue = 0x0107;
 
     /**
@@ -68,27 +65,25 @@ public abstract class BaseRVAdapter<T> extends RecyclerView.Adapter<BaseViewHold
     private LinearLayout mCopyHeaderLayout = null;
     private LinearLayout mCopyFooterLayout = null;
 
-    public BaseRVAdapter(Context context) {
-        this(context, null);
-    }
-
-    public BaseRVAdapter(Context context, List<T> data) {
-        mData = null == data ? new ArrayList<T>() : data;
-        layoutIdMap = new HashMap<>();
-        viewTypeMap = new HashMap<>();
+    public BaseRVAdapter(Context context, List<T> listBody) {
+        this.listBody = listBody != null ? listBody : new ArrayList<T>();
+        layoutIdMap = new SparseIntArray();
+        viewTypeMap = new SparseIntArray();
         mContext = context;
         mInflater = LayoutInflater.from(context);
     }
 
+    @NonNull
     @Override
-    public BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         BaseViewHolder baseViewHolder;
         switch (viewType) {
-            case VIEW_TYPE.HEADER://header
+            //header
+            case ViewType.HEADER:
                 baseViewHolder = new BaseViewHolder(mHeaderLayout, mContext);
                 break;
-
-            case VIEW_TYPE.FOOTER://footer
+            //footer
+            case ViewType.FOOTER:
                 baseViewHolder = new BaseViewHolder(mFooterLayout, mContext);
                 break;
 
@@ -106,13 +101,13 @@ public abstract class BaseRVAdapter<T> extends RecyclerView.Adapter<BaseViewHold
      *
      * @param holder
      */
-    protected final void initItemClickListener(final BaseViewHolder holder) {
+    private void initItemClickListener(final BaseViewHolder holder) {
         if (null != mOnItemClickListener) {
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     final int position = holder.getAdapterPosition() - getHeaderViewCount() - 1;
-                    mOnItemClickListener.onItemClick(view, mData.get(position), position);
+                    mOnItemClickListener.onItemClick(view, listBody.get(position), position);
                 }
             });
         }
@@ -122,7 +117,7 @@ public abstract class BaseRVAdapter<T> extends RecyclerView.Adapter<BaseViewHold
                 @Override
                 public boolean onLongClick(View v) {
                     final int position = holder.getAdapterPosition() - getHeaderViewCount() - 1;
-                    mOnItemLongClickListener.onItemLongClick(v, mData.get(position), position);
+                    mOnItemLongClickListener.onItemLongClick(v, listBody.get(position), position);
                     return true;
                 }
             });
@@ -132,13 +127,13 @@ public abstract class BaseRVAdapter<T> extends RecyclerView.Adapter<BaseViewHold
     @Override
     public int getItemViewType(int position) {
         if (position < getHeaderViewCount()) {
-            return VIEW_TYPE.HEADER;
-        } else if (position >= mData.size() + getHeaderViewCount()) {
-            return VIEW_TYPE.FOOTER;
+            return ViewType.HEADER;
+        } else if (position >= listBody.size() + getHeaderViewCount()) {
+            return ViewType.FOOTER;
         } else {
             int currentPosition = position - getHeaderViewCount();
             int currentLayoutId = getItemLayoutID(currentPosition);
-            if (!viewTypeMap.containsKey(currentLayoutId)) {
+            if (viewTypeMap.get(currentLayoutId) == 0) {
                 mCurrentViewTypeValue++;
                 viewTypeMap.put(currentLayoutId, mCurrentViewTypeValue);
                 layoutIdMap.put(viewTypeMap.get(currentLayoutId), currentLayoutId);
@@ -148,18 +143,68 @@ public abstract class BaseRVAdapter<T> extends RecyclerView.Adapter<BaseViewHold
     }
 
     @Override
-    public void onBindViewHolder(BaseViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull BaseViewHolder holder, int position) {
         switch (getItemViewType(position)) {
-            case VIEW_TYPE.HEADER:
+            case ViewType.HEADER:
                 // Do nothing
                 break;
-            case VIEW_TYPE.FOOTER:
+            case ViewType.FOOTER:
                 // Do nothing
                 break;
             default:
-                convert(holder, getItem(position - getHeaderViewCount()), position - getHeaderViewCount());
+                int currentPosition = position - getHeaderViewCount();
+                convert(holder, getItem(currentPosition), currentPosition);
                 addAnimation(holder);
                 break;
+        }
+    }
+
+    protected T getItem(int position) {
+        return listBody.get(position);
+    }
+
+    /**
+     * 根据需求返回layoutID
+     *
+     * @param position index
+     * @return
+     */
+    protected abstract int getItemLayoutID(int position);
+
+    /**
+     * onBindViewHolder绑定数据
+     *
+     * @param holder
+     * @param body 数据实体
+     * @param position index
+     */
+    protected abstract void convert(BaseViewHolder holder, T body, int position);
+
+    @Override
+    public int getItemCount() {
+        return listBody.size() + getHeaderViewCount() + getFooterViewCount();
+    }
+
+    public class OnItemChildClickListener implements View.OnClickListener {
+        public RecyclerView.ViewHolder mViewHolder;
+
+        @Override
+        public void onClick(View v) {
+            if (mChildClickListener != null) {
+                mChildClickListener.onItemChildClick(BaseRVAdapter.this, v, mViewHolder.getLayoutPosition() - getHeaderViewCount() - 1);
+            }
+        }
+    }
+
+    public class OnItemChildLongClickListener implements View.OnLongClickListener {
+        public RecyclerView.ViewHolder mViewHolder;
+
+        @Override
+        public boolean onLongClick(View v) {
+            if (mChildLongClickListener != null) {
+                return mChildLongClickListener.onItemChildLongClick(BaseRVAdapter.this, v, mViewHolder.getLayoutPosition() - getHeaderViewCount() - 1);
+            }
+            return false;
         }
     }
 
@@ -180,87 +225,6 @@ public abstract class BaseRVAdapter<T> extends RecyclerView.Adapter<BaseViewHold
     }
 
     /**
-     * 根据需求返回layoutID
-     *
-     * @param position index
-     * @return
-     */
-    protected abstract int getItemLayoutID(int position);
-
-    /**
-     * onBindViewHolder绑定数据
-     *
-     * @param holder
-     * @param body 数据实体
-     * @param position index
-     */
-    protected abstract void convert(BaseViewHolder holder, T body, int position);
-
-    protected T getItem(int position) {
-        return mData.get(position);
-    }
-
-    @Override
-    public int getItemCount() {
-        return mData.size() + getHeaderViewCount() + getFooterViewCount();
-    }
-
-    /**
-     * Listener api
-     */
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-        mOnItemClickListener = onItemClickListener;
-    }
-
-    public void setOnItemLongClickListener(OnItemLongClickListener onItemLongClickListener) {
-        mOnItemLongClickListener = onItemLongClickListener;
-    }
-
-    /**
-     * Register a callback to be invoked when childView in this AdapterView has
-     * been clicked and held
-     * {@link OnRecyclerViewItemChildClickListener}
-     *
-     * @param childClickListener The callback that will run
-     */
-    public void setOnItemChildClickListener(OnRecyclerViewItemChildClickListener childClickListener) {
-        this.mChildClickListener = childClickListener;
-    }
-
-    public class OnItemChildClickListener implements View.OnClickListener {
-        public RecyclerView.ViewHolder mViewHolder;
-
-        @Override
-        public void onClick(View v) {
-            if (mChildClickListener != null)
-                mChildClickListener.onItemChildClick(BaseRVAdapter.this, v, mViewHolder.getLayoutPosition() - getHeaderViewCount() - 1);
-        }
-    }
-
-    /**
-     * Register a callback to be invoked when childView in this AdapterView has
-     * been longClicked and held
-     * {@link OnRecyclerViewItemChildLongClickListener}
-     *
-     * @param childLongClickListener The callback that will run
-     */
-    public void setOnItemChildLongClickListener(OnRecyclerViewItemChildLongClickListener childLongClickListener) {
-        this.mChildLongClickListener = childLongClickListener;
-    }
-
-    public class OnItemChildLongClickListener implements View.OnLongClickListener {
-        public RecyclerView.ViewHolder mViewHolder;
-
-        @Override
-        public boolean onLongClick(View v) {
-            if (mChildLongClickListener != null) {
-                return mChildLongClickListener.onItemChildLongClick(BaseRVAdapter.this, v, mViewHolder.getLayoutPosition() - getHeaderViewCount() - 1);
-            }
-            return false;
-        }
-    }
-
-    /**
      * 在列表重复滑动时，设置item动画是否执行
      *
      * @param itemAnimationRepeat
@@ -276,17 +240,6 @@ public abstract class BaseRVAdapter<T> extends RecyclerView.Adapter<BaseViewHold
      */
     public void setItemAnimator(AlleyAnimationListener alleyAnimationListener) {
         animationListener = alleyAnimationListener;
-    }
-
-    /**
-     * Header and footer api
-     */
-    public LinearLayout getHeaderLayout() {
-        return mHeaderLayout;
-    }
-
-    public LinearLayout getFooterLayout() {
-        return mFooterLayout;
     }
 
     public void addHeaderView(View header) {
@@ -330,37 +283,48 @@ public abstract class BaseRVAdapter<T> extends RecyclerView.Adapter<BaseViewHold
     }
 
     public void removeHeaderView(View header) {
-        if (mHeaderLayout == null) return;
-
-        mHeaderLayout.removeView(header);
-        if (mHeaderLayout.getChildCount() == 0) {
-            mHeaderLayout = null;
+        if (mHeaderLayout != null) {
+            mHeaderLayout.removeView(header);
+            if (mHeaderLayout.getChildCount() == 0) {
+                mHeaderLayout = null;
+            }
+            this.notifyDataSetChanged();
         }
-        this.notifyDataSetChanged();
-    }
-
-    public void removeFooterView(View footer) {
-        if (mFooterLayout == null) return;
-
-        mFooterLayout.removeView(footer);
-        if (mFooterLayout.getChildCount() == 0) {
-            mFooterLayout = null;
-        }
-        this.notifyDataSetChanged();
     }
 
     public void removeAllHeaderView() {
-        if (mHeaderLayout == null) return;
+        if (mHeaderLayout != null) {
+            mHeaderLayout.removeAllViews();
+            mHeaderLayout = null;
+        }
+    }
 
-        mHeaderLayout.removeAllViews();
-        mHeaderLayout = null;
+    public void removeFooterView(View footer) {
+        if (mFooterLayout != null) {
+            mFooterLayout.removeView(footer);
+            if (mFooterLayout.getChildCount() == 0) {
+                mFooterLayout = null;
+            }
+            this.notifyDataSetChanged();
+        }
     }
 
     public void removeAllFooterView() {
-        if (mFooterLayout == null) return;
+        if (mFooterLayout != null) {
+            mFooterLayout.removeAllViews();
+            mFooterLayout = null;
+        }
+    }
 
-        mFooterLayout.removeAllViews();
-        mFooterLayout = null;
+    /**
+     * Header and footer api
+     */
+    public LinearLayout getHeaderLayout() {
+        return mHeaderLayout;
+    }
+
+    public LinearLayout getFooterLayout() {
+        return mFooterLayout;
     }
 
     public int getHeaderViewCount() {
@@ -371,52 +335,78 @@ public abstract class BaseRVAdapter<T> extends RecyclerView.Adapter<BaseViewHold
         return null == mFooterLayout ? 0 : 1;
     }
 
-    /**
-     * Some interface
-     */
     public interface OnItemClickListener<T> {
+        /**
+         * item点击回调
+         *
+         * @param view
+         * @param item
+         * @param position
+         */
         void onItemClick(View view, T item, int position);
     }
 
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        mOnItemClickListener = onItemClickListener;
+    }
+
     public interface OnItemLongClickListener<T> {
+        /**
+         * item长按回调
+         *
+         * @param view
+         * @param item
+         * @param position
+         */
         void onItemLongClick(View view, T item, int position);
     }
 
-    public interface OnRecyclerViewItemChildClickListener {
+    public void setOnItemLongClickListener(OnItemLongClickListener onItemLongClickListener) {
+        mOnItemLongClickListener = onItemLongClickListener;
+    }
+
+    public interface OnRecyclerItemChildClickListener {
+        /**
+         * item子控件点击回调
+         *
+         * @param adapter
+         * @param view
+         * @param position
+         */
         void onItemChildClick(BaseRVAdapter adapter, View view, int position);
     }
 
-    public interface OnRecyclerViewItemChildLongClickListener {
+    /**
+     * Register a callback to be invoked when childView in this AdapterView has
+     * been clicked and held
+     * {@link OnRecyclerItemChildClickListener}
+     *
+     * @param childClickListener The callback that will run
+     */
+    public void setOnItemChildClickListener(OnRecyclerItemChildClickListener childClickListener) {
+        this.mChildClickListener = childClickListener;
+    }
+
+    public interface OnRecyclerItemChildLongClickListener {
+        /**
+         * item子控件长按回调
+         *
+         * @param adapter
+         * @param view
+         * @param position
+         * @return
+         */
         boolean onItemChildLongClick(BaseRVAdapter adapter, View view, int position);
     }
 
     /**
-     * This is parallax header view wrapper class ,it aim to clip layout height on Y.
+     * Register a callback to be invoked when childView in this AdapterView has
+     * been longClicked and held
+     * {@link OnRecyclerItemChildLongClickListener}
+     *
+     * @param childLongClickListener The callback that will run
      */
-    static class CustomRelativeWrapper extends RelativeLayout {
-        private int mOffset;
-        private boolean mShouldClip;
-
-        public CustomRelativeWrapper(Context context) {
-            super(context);
-        }
-
-        public CustomRelativeWrapper(Context context, boolean shouldClick) {
-            super(context);
-            mShouldClip = shouldClick;
-        }
-
-        @Override
-        protected void dispatchDraw(Canvas canvas) {
-            if (mShouldClip) {
-                canvas.clipRect(new Rect(getLeft(), getTop(), getRight(), getBottom() + mOffset));
-            }
-            super.dispatchDraw(canvas);
-        }
-
-        public void setClipY(int offset) {
-            mOffset = offset;
-            invalidate();
-        }
+    public void setOnItemChildLongClickListener(OnRecyclerItemChildLongClickListener childLongClickListener) {
+        this.mChildLongClickListener = childLongClickListener;
     }
 }

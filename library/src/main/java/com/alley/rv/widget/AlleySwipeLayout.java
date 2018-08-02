@@ -31,10 +31,8 @@ public class AlleySwipeLayout extends FrameLayout {
     private int mDownX;
     private int state = STATE_CLOSE;
     private GestureDetectorCompat mGestureDetector;
-    private OnGestureListener mGestureListener;
     private boolean isFling;
     private OverScroller mOpenScroller, mCloseScroller;
-    private Interpolator mCloseInterpolator, mOpenInterpolator;
     private int mBaseX;
     private ViewConfiguration mViewConfiguration;
     private boolean swipeEnable = true;
@@ -74,7 +72,7 @@ public class AlleySwipeLayout extends FrameLayout {
     }
 
     public void initAlleySwipeLayout() {
-        mGestureListener = new SimpleOnGestureListener() {
+        OnGestureListener mGestureListener = new SimpleOnGestureListener() {
             @Override
             public boolean onDown(MotionEvent e) {
                 isFling = false;
@@ -96,16 +94,14 @@ public class AlleySwipeLayout extends FrameLayout {
     }
 
     public void setCloseInterpolator(Interpolator closeInterpolator) {
-        mCloseInterpolator = closeInterpolator;
-        if (mCloseInterpolator != null) {
-            mCloseScroller = new OverScroller(getContext(), mCloseInterpolator);
+        if (closeInterpolator != null) {
+            mCloseScroller = new OverScroller(getContext(), closeInterpolator);
         }
     }
 
     public void setOpenInterpolator(Interpolator openInterpolator) {
-        mOpenInterpolator = openInterpolator;
-        if (mOpenInterpolator != null) {
-            mOpenScroller = new OverScroller(getContext(), mOpenInterpolator);
+        if (openInterpolator != null) {
+            mOpenScroller = new OverScroller(getContext(), openInterpolator);
         }
     }
 
@@ -126,12 +122,17 @@ public class AlleySwipeLayout extends FrameLayout {
                 break;
 
             case MotionEvent.ACTION_UP:
-                if ((isFling || Math.abs(mDownX - event.getX()) > (mMenuView.getWidth() / 3)) && Math.signum(mDownX - event.getX()) == mSwipeDirection) {
+                boolean smooth = isFling || Math.abs(mDownX - event.getX()) > (mMenuView.getWidth() / 3);
+                boolean direction = Math.signum(mDownX - event.getX()) == mSwipeDirection;
+                if (smooth && direction) {
                     smoothOpenMenu();
                 } else {
                     smoothCloseMenu();
                     return false;
                 }
+                break;
+
+            default:
                 break;
         }
         return true;
